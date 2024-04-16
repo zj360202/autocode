@@ -7,40 +7,7 @@
 
 import os
 from src.utils.comm_utils import get_full_path
-
-
-class Agent:
-    agent_type_mapping = {
-        'model_qwen': 'model',
-        'bing_search': 'web_search',
-        'exec_python': 'python',
-        'pip_install': 'shell',
-
-    }
-    type_fun_mapping = {
-        'model': '',
-        'web_search': '',
-        'python': '',
-        'shell': '',
-    }
-
-    def __init__(self, name: str, agent_args: dict, desc: str = None):
-        """
-        执行代理，每一个代理只能是一个action执行
-        """
-        self.name = name
-        self.agent_args = agent_args
-        self.desc = desc
-
-    def exec(self):
-        agent_type = self.agent_type_mapping.get(self.name)
-        if agent_type is not None:
-            agent = self.type_fun_mapping[agent_type]
-            result = agent(self.name, **self.agent_args)
-            return result
-        else:
-            # 如果出错，一般是需要让模型重新更新这一块的描述的
-            pass
+from src.dispatcher.agents.agent import AgentFactory
 
 
 class Plan:
@@ -53,7 +20,7 @@ class Plan:
 
     def exec(self):
         for agent in self.agents:
-            agent.exec()
+            AgentFactory.exec_agent(**agent)
 
     def cache(self):
         pass
