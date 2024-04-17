@@ -6,8 +6,9 @@
 """
 
 import os
-from src.utils.comm_utils import get_full_path
-from src.dispatcher.agents.agent import AgentFactory
+from utils.comm_utils import get_full_path
+from logs.logger import log
+from dispatcher.agents.agent import AgentFactory
 
 
 class Plan:
@@ -19,8 +20,24 @@ class Plan:
         self.level = level
 
     def exec(self):
+        max_loop, loop = 10, 0
+        run_flag = True
         for agent in self.agents:
-            AgentFactory.exec_agent(**agent)
+            # 依次执行agent，如果在执行过程中出错，则直接将输入和错误信息通过模型进行优化
+            while run_flag or loop < max_loop:
+                try:
+                    AgentFactory.exec_agent(**agent)
+                    run_flag = True
+                    loop = 0
+                except Exception as e:
+                    log.error(f"")
+                    run_flag = False
+                    loop += 1
+                    # 判定就code执行还是shell执行
+                    prompt = f'{agent.args}'
+                    params = {'name': 'qwen', 'args':{}}
+                    result = AgentFactory.exec_agent(**params)
+                    agent.args['prompt'] = result
 
     def cache(self):
         pass

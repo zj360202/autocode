@@ -5,9 +5,7 @@
 
 from pyparsing import Any
 
-from src.logs.ansi import SGR
-from src.logs.logger import logger
-from src.dispatcher.agents import Agents, AgentFactory
+from dispatcher.agents import Agents, AgentFactory
 
 
 class PythonAgents(Agents):
@@ -37,12 +35,13 @@ class PythonAgents(Agents):
             for k in return_keys:
                 result[k] = params[k]
         return result
-    
+
     def merge_code(self, code, merge_file_path):
         """
         将code写入merge_file_path对应的文件中
-        
+
         主要判定下引入是否有重复
         """
+
         with open(merge_file_path, 'w') as merge_file:
             merge_file.write(code)

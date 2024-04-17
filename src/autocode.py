@@ -4,7 +4,7 @@ import os
 import argparse
 
 
-from src.dispatcher.dispatcher import create_project
+from dispatcher.dispatcher import create_project
 
 
 def parse_args():
@@ -35,8 +35,6 @@ def parse_args():
 def main():
     # 解析参数
     args = parse_args()
-
-
 
 
 if __name__ == '__main__':
