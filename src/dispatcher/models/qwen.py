@@ -1,8 +1,7 @@
 import time
 import copy
 from DrissionPage import ChromiumPage
-
-from logs.logger import log
+from loguru import logger
 
 
 class ModelQWen:
@@ -16,7 +15,7 @@ class ModelQWen:
         # page.get('https://tongyi.aliyun.com/qianwen/')
         self.new_page = self.page.get_tab(self.page.latest_tab).page
         
-    def qa(self, question):
+    def model(self, question):
         textarea_ele = self.new_page.ele('tag:textarea@@class:ant-input')
         # a = 'Interim Dividend 与以下分类及分类说明，最相关的三个分类是哪些 Banking: 与银行相关的业务 Commercial & Operations:
         # 公司IT硬件、软件、授权，场地租聘，固定资产和虚拟资产相关 Corporate Governance: 规定公司审计、授权、人员职责、评价政策、风险管理、费用管理等相关内容 Corporate Matters:
@@ -40,5 +39,5 @@ class ModelQWen:
             time.sleep(5)
             answers = self.new_page.eles('css:div.stream--brXJQIKe > div.contentBox--WIsVhFWg > div.tongyi-ui-markdown')
             answer = answers[-1].text
-        log.debug(f'千问模型问答: question:{question} answer:{answer}')
+        logger.debug(f'千问模型问答: question:{question} answer:{answer}')
         return answer

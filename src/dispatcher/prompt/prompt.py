@@ -20,17 +20,22 @@ from dispatcher.agents.agent import AgentFactory
 ###################################################################################
 # 用户需求
 agent_infos = ""
-for k, v in AgentFactory.agent_mapping:
-    agent_infos += f'<{k}>: {v["desc"]}'
-    
+agent_func_mapping = AgentFactory.agent_mapping()
+for k, v in agent_func_mapping.items():
+    agent_infos += f'{v["desc"]}'
+
 prompt_agents = f"""
-agent列表如下，描述规范是<agent_name>: agent_desc
+描述规范是:
+agent_name: agent_desc
+    arg1(arg_type): arg1_desc
+    arg2(arg_type): arg2_desc
+agent列表如下，
 {agent_infos}
 """
 
 ###################################################################################
 # 用户需求
-prompt_user_demand_input = """
+prompt_user_demand_create_project_input = """
 用户需求: 
 {demand}
 
@@ -46,8 +51,13 @@ prompt_user_demand_input = """
 4. 尽可能高效率的使用较少的动作来完成任务
 5. 对于同一个任务，可以通过多种agent完成，如何让算法能够选择最好的解决方法
     比如：获取当期日期，可以通过python，web搜索，shell等，选择哪种最合适
+"""
 
-任务拆解如下，<>中的内容是需要进行替换的内容
+prompt_user_demand_create_project_output = """
+项目结构 请用tree的方式描述项目的目录结果, <>的内容表示需要生成的内容：
+<project_structure_tree>
+
+任务拆解如下，<>的内容是需要进行替换的内容
 用户需求:
 ```json
 [

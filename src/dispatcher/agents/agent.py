@@ -1,38 +1,42 @@
+import inspect
 from abc import ABC, abstractmethod
 
-
-class Agents(ABC):
-    @property       # 必须写在上面，不然在运行的时候会报错
-    @abstractmethod
-    def desc(self):
-        """设定类型"""
+from utils.comm_utils import agent_desc
 
 
 class AgentFactory:
-    
-    agent_fun_mapping = {}
-    
+    agent_func_mapping = {}
+
     @staticmethod
-    def register_agent(name, desc, fun):
+    def register_agent(name, func):
         """每一个agent是一个agent类中的一个方法"""
-        if name in AgentFactory.agent_fun_mapping:
+        if name in AgentFactory.agent_func_mapping:
             raise ValueError(f'agent: {name} 已经被定义过了')
-        AgentFactory.agent_fun_mapping[name] = {'desc': desc, 'fun': fun}
-    
+
+        # 获取函数的参数信息
+        func_desc, args_desc = agent_desc(name, func)
+
+        # 封装desc
+        desc = f'{name}: {func_desc}\n'
+        for arg_desc in args_desc:
+            desc += f'\t{arg_desc}\n'
+
+        # 注册agent
+        AgentFactory.agent_func_mapping[name] = {'desc': desc, 'func': func}
+
     @staticmethod
     def get_agent(name):
-        if name not in AgentFactory.agent_fun_mapping:
+        if name not in AgentFactory.agent_func_mapping:
             raise ValueError(f'agent: {name} 未被定义')
-        return AgentFactory.agent_fun_mapping[name]
-    
+        return AgentFactory.agent_func_mapping[name]
+
     @staticmethod
     def exec_agent(name, agent_args):
         """执行agent"""
-        if name not in AgentFactory.agent_fun_mapping:
+        if name not in AgentFactory.agent_func_mapping:
             raise ValueError(f'agent: {name} 未被定义')
-        return AgentFactory.agent_fun_mapping[name]['fun'](agent_args)
+        return AgentFactory.agent_func_mapping[name]['func'](agent_args)
 
     @staticmethod
-    @staticmethod
     def agent_mapping():
-        return AgentFactory.agent_fun_mapping
+        return AgentFactory.agent_func_mapping

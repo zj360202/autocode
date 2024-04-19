@@ -6,9 +6,14 @@
 """
 
 import os
+from loguru import logger
+
 from utils.comm_utils import get_full_path
-from logs.logger import log
+from utils.logger import set_logger
 from dispatcher.agents.agent import AgentFactory
+from dispatcher.prompt.prompt import prompt_user_demand_create_project_input, prompt_agents
+from dispatcher.prompt.prompt import prompt_user_demand_create_project_output
+from dispatcher.models.qwen import ModelQWen
 
 
 class Plan:
@@ -30,7 +35,7 @@ class Plan:
                     run_flag = True
                     loop = 0
                 except Exception as e:
-                    log.error(f"")
+                    logger.error(f"")
                     run_flag = False
                     loop += 1
                     # 判定就code执行还是shell执行
@@ -49,7 +54,7 @@ class Plan:
 def create_project(name: str,
                    path: str,
                    language: str,
-                   model: str,
+                   model_name: str,
                    search_engine: str,
                    log_path: str,
                    cache_path: str,
@@ -69,15 +74,32 @@ def create_project(name: str,
     # 格式化日志路径
     log_path = get_full_path(log_path, path)
     os.makedirs(log_path, exist_ok=True)
+    
+    # 配置日志
+    set_logger(log_path)
 
     # 格式化缓存路径
     cache_path = get_full_path(cache_path, path)
     os.makedirs(cache_path, exist_ok=True)
 
+    # model = None
+    # if model_name == 'qwen':
+    #     model = ModelQWen()
+
     ##################################################
     # 开始执行
-    first_prompt = ""
-
+    first_prompt = prompt_user_demand_create_project_input.format(demand=project_subject,
+                                                                  check_desc=check_desc,
+                                                                  prompt_agents=prompt_agents)
+    first_prompt += prompt_user_demand_create_project_output
+    print(f'prompt:\n{first_prompt}')
+    # answer = model.model(first_prompt)
+    #
+    # # 解析回答的内容
+    #
+    # is_continue = True
+    # while is_continue:
+    #     pass
 
 
 
