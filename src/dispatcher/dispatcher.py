@@ -14,35 +14,23 @@ from dispatcher.agents.agent import AgentFactory
 from dispatcher.prompt.prompt import prompt_user_demand_create_project_input, prompt_agents
 from dispatcher.prompt.prompt import prompt_user_demand_create_project_output
 from dispatcher.models.qwen import ModelQWen
+from dispatcher.models.parse_data import parse_answer
 
 
-class Plan:
+class Plans:
     """
     执行计划
     """
-    def __init__(self, agents: list, level: int = 0):
-        self.agents = agents
-        self.level = level
+    def __init__(self, plans: list):
+        self.plans = plans
 
     def exec(self):
         max_loop, loop = 10, 0
         run_flag = True
-        for agent in self.agents:
-            # 依次执行agent，如果在执行过程中出错，则直接将输入和错误信息通过模型进行优化
-            while run_flag or loop < max_loop:
-                try:
-                    AgentFactory.exec_agent(**agent)
-                    run_flag = True
-                    loop = 0
-                except Exception as e:
-                    logger.error(f"")
-                    run_flag = False
-                    loop += 1
-                    # 判定就code执行还是shell执行
-                    prompt = f'{agent.args}'
-                    params = {'name': 'qwen', 'args':{}}
-                    result = AgentFactory.exec_agent(**params)
-                    agent.args['prompt'] = result
+        for plan in self.plans:
+            # 目前一个
+            for agent_name, agent_info in plan:
+                pass
 
     def cache(self):
         pass
@@ -56,6 +44,7 @@ def create_project(name: str,
                    language: str,
                    model_name: str,
                    search_engine: str,
+                   env_name: str,
                    log_path: str,
                    cache_path: str,
                    project_subject: str,
@@ -82,9 +71,9 @@ def create_project(name: str,
     cache_path = get_full_path(cache_path, path)
     os.makedirs(cache_path, exist_ok=True)
 
-    # model = None
-    # if model_name == 'qwen':
-    #     model = ModelQWen()
+    model = None
+    if model_name == 'qwen':
+        model = ModelQWen()
 
     ##################################################
     # 开始执行
@@ -92,8 +81,21 @@ def create_project(name: str,
                                                                   check_desc=check_desc,
                                                                   prompt_agents=prompt_agents)
     first_prompt += prompt_user_demand_create_project_output
-    print(f'prompt:\n{first_prompt}')
-    # answer = model.model(first_prompt)
+    # print(f'prompt:\n{first_prompt}')
+    
+    # 访问大模型，获取返回的结果
+    answer = model.model(first_prompt)
+    
+    # 解析回答的内容
+    key_infos = parse_answer('pc', answer)
+    
+    # 1. 创建项目目录结构
+    
+    # 2. 完成项目执行计划
+    plans = key_infos['plans']
+    
+    # 3. 完成验证执行计划
+    check_plans = key_infos['check_plans']
     #
     # # 解析回答的内容
     #

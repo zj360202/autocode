@@ -21,7 +21,16 @@ merge_code: 将传入python代码进行合并.
         merge_file_path (str): 需要合并的python代码路径
         pip_info (str, optional): pip需要安装的内容
         import_info (str, optional): import或者from需要依赖的模块信息
-
+create_dir: 创建目录.
+        dir_path (str): 目录信息
+        file_path (str): 目标文件
+        file_content (str): 文件内容
+write_file: 写文件.
+        file_path (str): 目标文件
+        file_content (str): 文件内容
+windows_shell_agent: windows 下执行command命令
+        command (str): windows shell command
+        env_name (str, optional): conda环境，需要在用户提需求的时候进行指定
 
 
 请给出对于用户需求和验证效果描述的执行计划，给出的计划必须满足如下要求：
@@ -39,6 +48,7 @@ merge_code: 将传入python代码进行合并.
 用户需求:
 ```json
 [
+    # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
         "<agent_name>": {
@@ -52,6 +62,7 @@ merge_code: 将传入python代码进行合并.
 验证项目效果描述:
 ```json
 [
+    # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
         "<agent_name>": {

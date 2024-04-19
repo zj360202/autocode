@@ -19,6 +19,8 @@ def parse_args(args=None, namespace=None):
     project_create.add_argument("-m", "--model_name", type=str, default='qwen', required=False, help="模型")
     project_create.add_argument("-s", "--search_engine", type=str, default='bing', required=False,
                                 help="搜索引擎")
+    project_create.add_argument("--env_name", type=str, required=False,
+                                help="conda虚拟机环境")
     project_create.add_argument("--log_path", type=str, default='./logs', required=False,
                                 help="日志路径, 默认在项目路径的logs目录")
     project_create.add_argument("--cache_path", type=str, default='./cache', required=False,

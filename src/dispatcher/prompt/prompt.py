@@ -61,6 +61,7 @@ prompt_user_demand_create_project_output = """
 用户需求:
 ```json
 [
+    # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
         "<agent_name>": {
@@ -74,6 +75,7 @@ prompt_user_demand_create_project_output = """
 验证项目效果描述:
 ```json
 [
+    # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
         "<agent_name>": {

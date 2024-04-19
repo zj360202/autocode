@@ -25,7 +25,7 @@ def run_python(code: str,
     if pip_info is not None:
         pips = pip_info.split('\n')
         for p in pips:
-            
+            pass
     exec(code, args_dict)
     result = {}
     if return_keys and len(return_keys) > 0:
@@ -38,6 +38,10 @@ def merge_code(code: str, merge_file_path: str,
                import_info: str = None):
     """
     将传入python代码进行合并
+    
+    先判断import_info中的import或from信息是否已经包含在目标文件中
+    如果不包含，才添加相关信息，如果包含就不添加了
+    然后code直接追加到最后面
     Args:
         code (str): 代码主体部分
         merge_file_path (str): 需要合并的python代码路径
@@ -45,13 +49,18 @@ def merge_code(code: str, merge_file_path: str,
     """
     lines = []
     codes = []
+    # 先获取原文件中的内容
+    f = open(merge_file_path, 'r')
+    for line in f.readlines():
+        if not line.startswith('import') or not line.startswith('from'):
+            codes.append(line)
+        else:
+            lines.append(line)
+    
+    # 判定新的import和from信息是否在原来的文件中存在
     if import_info is not None:
         imports = import_info.split("\n")
-        f = open(merge_file_path, 'r')
-        for line in f.readlines():
-            if not line.startswith('import') or not line.startswith('from'):
-                continue
-            lines.append(line)
+        
         for imp in imports:
             has_exists = False
             for line in lines:
@@ -60,8 +69,14 @@ def merge_code(code: str, merge_file_path: str,
                     break
             if not has_exists:
                 lines.append(imp)
+    
+    # 将所有数据写入文件，先写import或from信息，然后写入code部分
     with open(merge_file_path, 'w') as merge_file:
-        merge_file.write(code)
+        for line in lines:
+            merge_file.write(f'{line}\n')
+        for c in codes:
+            merge_file.write(f'{c}\n')
+        merge_file.write(f'{code}\n')
 
 
 def create_dir(dir_path: str):
@@ -75,7 +90,12 @@ def create_dir(dir_path: str):
 
 
 def write_file(file_path: str, file_content: str):
-
+    """
+    写文件
+    Args:
+        file_path (str): 目标文件
+        file_content (str): 文件内容
+    """
     dir_path = os.path.dirname(file_path)
     create_dir(dir_path)
 
@@ -84,6 +104,12 @@ def write_file(file_path: str, file_content: str):
 
 
 def append_file(file_path: str, file_content: str):
+    """
+    追加内容到文件中
+    Args:
+        file_path (str): 文件路径
+        file_content (str): 文件内容
+    """
     dir_path = os.path.dirname(file_path)
     create_dir(dir_path)
 
