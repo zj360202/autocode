@@ -1,65 +1,81 @@
-from typing import Any
-from urllib.parse import urlencode, urlunparse
-from urllib.request import urlopen, Request
-from bs4 import BeautifulSoup
-import urllib.request
+import requests
+from loguru import logger
 
-from dispatcher.agents import Agents, AgentFactory
+from dispatcher.agents import format_agent_result
 
-headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0'}
-bing_url = 'https://cn.bing.com/search?q='
-baidu_url = 'https://www.baidu.com/s?wd='
-google_url = 'https://www.google.com/search?q='
+
+# Search engine related. You don't really need to change this.
+BING_SEARCH_V7_ENDPOINT = "https://api.bing.microsoft.com/v7.0/search"
+BING_MKT = "en-US"
+GOOGLE_SEARCH_ENDPOINT = "https://customsearch.googleapis.com/customsearch/v1"
+
+# Specify the number of references from the search engine you want to use.
+# 8 is usually a good number.
+REFERENCE_COUNT = 8
+
+# Specify the default timeout for the search engine. If the search engine
+# does not respond within this time, we will return an error.
+DEFAULT_SEARCH_ENGINE_TIMEOUT = 5
 
 
 # https://github.com/langchain-ai/langchain/blob/master/libs/langchain/langchain/utilities/bing_search.py
-def bing_search(param: str, num_results: int = 8) -> list:
-    """获取搜索标题和内容"""
-    page = urllib.request.urlopen('https://www.bing.com/search?q=%s' % param)
+@format_agent_result
+def bing_search(query: str, subscription_key: str) -> list:
+    """
+    bing搜索
+    Args:
+        query: 搜索内容
+        subscription_key: 订阅密钥
+    Returns:
+        list: 搜索结果
+    """
+    params = {
+        "q": query, 
+        "mkt": BING_MKT, 
+        'count': REFERENCE_COUNT, 
+        "textDecorations": True, 
+        "textFormat": "HTML"
+    }        
+    response = requests.get(
+        BING_SEARCH_V7_ENDPOINT,
+        headers={"Ocp-Apim-Subscription-Key": subscription_key},
+        params=params,
+        timeout=DEFAULT_SEARCH_ENGINE_TIMEOUT,
+    )
+    if not response.ok:
+        logger.error(f"{response.status_code} {response.text}")
+        raise Exception(response.status_code, "Search engine error.")
+    json_content = response.json()
+    contexts = json_content["webPages"]["value"]
+    return contexts
 
-    soup = BeautifulSoup(page.read(), 'lxml')
-    links = soup.select("li h2")
 
-    for link in links:
-        print(link.text)
-    result = {
-        'title': None,      # 标题
-        'link': None,       # 链接
-        'snippet': None     # 描述或片段内容
+def baidu_search(query: str, subscription_key: str) -> list:
+    pass
+
+
+@format_agent_result
+def google_search(query: str, subscription_key: str, cx: str) -> list:
+    """
+    Search with google and return the contexts.
+    """
+    params = {
+        "key": subscription_key,
+        "cx": cx,
+        "q": query,
+        "num": REFERENCE_COUNT,
     }
-
-
-def baidu_search(param: str, num_results: int = 8) -> list:
-    pass
-
-
-def google_search(param: str, num_results: int = 8) -> list:
-    pass
-
-
-class WebSearchAgents(Agents):
-    @property
-    def name(self):
-        return 'web_search'
-
-    def _run(self,
-             search_content: str,
-             web_type: str = 'bing'):
-        if web_type == 'bing':
-            return bing_search(search_content)
-        elif web_type == 'baidu':
-            return baidu_search(search_content)
-        elif web_type == 'google':
-            return google_search(search_content)
+    response = requests.get(
+        GOOGLE_SEARCH_ENDPOINT, params=params, timeout=DEFAULT_SEARCH_ENGINE_TIMEOUT
+    )
+    if not response.ok:
+        logger.error(f"{response.status_code} {response.text}")
+        raise Exception(response.status_code, "Search engine error.")
+    json_content = response.json()
+    try:
+        contexts = json_content["items"][:REFERENCE_COUNT]
+    except KeyError:
+        logger.error(f"Error encountered: {json_content}")
         return []
+    return contexts
 
-    async def _arun(self,
-                    search_content: str,
-                    web_type: str = 'bing'):
-        if web_type == 'bing':
-            return bing_search(search_content)
-        elif web_type == 'baidu':
-            return baidu_search(search_content)
-        elif web_type == 'google':
-            return google_search(search_content)
-        return []

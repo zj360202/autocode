@@ -31,6 +31,15 @@ def _answer_pc(answer: str):
     """
     return {}
 
+def _answer_error_fix(answer: str):
+    """
+    模型回答的内容，需要其中抽取的内容如下:
+    1. 单个执行计划(目前主要是python, shell错误的概率比较大)
+
+    Args:
+        answer (str): 模型返回的内容
+    """
+    return {}
 
 def parse_answer(demand_type: str, answer: str):
     """
@@ -43,5 +52,10 @@ def parse_answer(demand_type: str, answer: str):
     if demand_type == 'pc':
         # 创建项目
         return _answer_pc(answer)
+    elif demand_type == 'error_fix':
+        # 错误修复
+        return _answer_error_fix(answer)
+    else:
+        return {}
     
     

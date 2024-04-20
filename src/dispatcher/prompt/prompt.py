@@ -64,8 +64,9 @@ prompt_user_demand_create_project_output = """
     # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
-        "<agent_name>": {
-            args: {
+        "agent": {
+            "name": <agent_name>
+            "args": {
                 <arg_name>: <arg_value>
             }
         }
@@ -78,8 +79,9 @@ prompt_user_demand_create_project_output = """
     # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
-        "<agent_name>": {
-            args: {
+        "agent": {
+            "name": <agent_name>
+            "args": {
                 <arg_name>: <arg_value>
             }
         }
@@ -123,4 +125,29 @@ python代码内容如下:
 """
 
 ###################################################################################
+# 执行错误后，让模型修正
+prompt_error_fix_input = """
+需求描述: 
+{desc}
 
+执行内容, agent信息:
+{agent}
+
+执行错误如下:
+```shell
+{err_msg}
+```
+
+请修正错误，并给出修正后的内容
+补充说明，agent信息的格式化：
+{
+    "desc": "<reasoning>",
+    "agent": {
+        "name": <agent_name>
+        "args": {
+            <arg_name>: <arg_value>
+        }
+    }
+}
+修复内容的格式化和上面一样，并且和agent信息保持一致，只修改arg_value的内容，其余内容不变
+"""

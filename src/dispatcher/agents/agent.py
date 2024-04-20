@@ -4,6 +4,19 @@ from abc import ABC, abstractmethod
 from utils.comm_utils import agent_desc
 
 
+
+def format_agent_result(agent_func):
+    # 将agent的返回值格式化
+    def wrapper():
+        try:
+            rst = agent_func()
+            result = {'status_code': 0, 'data': rst}
+        except Exception as e:
+            result = {'status_code': 1, 'err_msg': str(e)}
+        return result
+
+
+
 class AgentFactory:
     agent_func_mapping = {}
 

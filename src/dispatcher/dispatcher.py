@@ -12,25 +12,64 @@ from utils.comm_utils import get_full_path
 from utils.logger import set_logger
 from dispatcher.agents.agent import AgentFactory
 from dispatcher.prompt.prompt import prompt_user_demand_create_project_input, prompt_agents
-from dispatcher.prompt.prompt import prompt_user_demand_create_project_output
+from dispatcher.prompt.prompt import prompt_user_demand_create_project_output, prompt_error_fix_input
 from dispatcher.models.qwen import ModelQWen
 from dispatcher.models.parse_data import parse_answer
 
 
-class Plans:
+class Plan:
     """
     执行计划
     """
-    def __init__(self, plans: list):
-        self.plans = plans
+    def __init__(self, language: str, model, 
+                 search_engine: str, env_name: str):
+        self.language = language
+        self.model = model
+        self.search_engine = search_engine
+        self.env_name = env_name
 
-    def exec(self):
-        max_loop, loop = 10, 0
-        run_flag = True
-        for plan in self.plans:
-            # 目前一个
-            for agent_name, agent_info in plan:
-                pass
+        # 执行步骤中的参数
+        self.max_loop = 10  # 如果执行失败，最大重试次数
+
+    def _exec_plan(self, plan_info: dict):
+        """
+        执行计划
+
+        1. 获取执行计划的描述 key:desc
+        2. 获取执行计划的agent信息 key: agent
+        """
+        agent_info = plan_info.get('agent')
+        agent_name = agent_info['name']
+        agent = AgentFactory.get_agent(agent_name)
+        if 'args' in agent_info:
+            result = agent(**agent_info['args'])
+        else:
+            result = agent()
+        return result
+
+
+    def exec(self, plan_info: dict):
+        loop = 0
+        while loop < self.max_loop:
+            loop += 1
+            result = self._exec_plan(plan_info)
+            if result.get('status_code') == 0:
+                # 执行成功
+                rst = result.get('data')
+                return rst
+            else:
+                err_msg = result.get('err_msg')
+                new_plan = {
+                    'desc': plan_info['desc'],
+                    'agent': plan_info['agent'],
+                    'err_msg': err_msg
+                }
+                prompt = prompt_error_fix_input.format(**new_plan)
+                answer = self.model(prompt)
+    
+                # 解析回答的内容
+                new_plan_info = parse_answer('error_fix', answer)
+                return self.exec(new_plan_info)
 
     def cache(self):
         pass
