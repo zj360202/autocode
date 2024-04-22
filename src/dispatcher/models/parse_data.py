@@ -1,5 +1,13 @@
 
 
+def _parse_md(markdown: str):
+    """
+    解析markdown中的内容
+    Args:
+        markdown (str): markdown内容
+    """
+    return {}
+
 def _demand_pc(demand):
     """
     需要解析的内容: 项目目录

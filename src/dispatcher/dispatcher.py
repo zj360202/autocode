@@ -74,9 +74,6 @@ class Plan:
     def cache(self):
         pass
 
-    def check(self):
-        pass
-
 
 def create_project(name: str,
                    path: str,

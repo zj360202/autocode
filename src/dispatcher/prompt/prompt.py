@@ -24,7 +24,9 @@ agent_func_mapping = AgentFactory.agent_mapping()
 for k, v in agent_func_mapping.items():
     agent_infos += f'{v["desc"]}'
 
-prompt_agents = f"""
+prompt_agents = {
+    'extract': [],
+    'prompt':f"""
 描述规范是:
 agent_name: agent_desc
     arg1(arg_type): arg1_desc
@@ -32,10 +34,13 @@ agent_name: agent_desc
 agent列表如下，
 {agent_infos}
 """
+}
 
 ###################################################################################
 # 用户需求
-prompt_user_demand_create_project_input = """
+prompt_user_demand_create_project_input = {
+    'extract': [],
+    'prompt':"""
 用户需求: 
 {demand}
 
@@ -52,8 +57,11 @@ prompt_user_demand_create_project_input = """
 5. 对于同一个任务，可以通过多种agent完成，如何让算法能够选择最好的解决方法
     比如：获取当期日期，可以通过python，web搜索，shell等，选择哪种最合适
 """
+}
 
-prompt_user_demand_create_project_output = """
+prompt_user_demand_create_project_output = {
+    'extract': ['项目结构', '用户需求', '验证项目'],
+    'prompt':"""
 项目结构 请用tree的方式描述项目的目录结果, <>的内容表示需要生成的内容：
 <project_structure_tree>
 
@@ -89,24 +97,36 @@ prompt_user_demand_create_project_output = """
 ]
 ```
 """
+}
 
 # 需求分析
-prompt_demand_analyse_input = """
+prompt_demand_analyse_input = {
+    'extract': ['修正后的内容'],
+    'prompt':"""
 使用python, 完成需求: {demand}
 """
+}
 
-prompt_demand_output = """
+prompt_demand_output = {
+    'extract': ['修正后的内容'],
+    'prompt':"""
 完成
 """
+}
 
 ###################################################################################
 # python代码生成
 # demand需求：来自用户或是通过模型生成的计划描述
-prompt_python_code_input = """
+prompt_python_code_input = {
+    'extract': ['修正后的内容'],
+    'prompt':"""
 使用python, 完成需求: {demand}
 """
+}
 
-prompt_python_code_output = """
+prompt_python_code_output = {
+    'extract': ['修正后的内容'],
+    'prompt':"""
 python 代码生成，返回格式化如下，下面{content}中是需要生成和替换的内容
 pip 安装内容如下:
 ```shell
@@ -123,10 +143,13 @@ python代码内容如下:
 {content}
 ```
 """
+}
 
 ###################################################################################
 # 执行错误后，让模型修正
-prompt_error_fix_input = """
+prompt_error_fix_input = {
+    'extract': ['修正后的内容'],
+    'prompt':"""
 需求描述: 
 {desc}
 
@@ -151,3 +174,4 @@ prompt_error_fix_input = """
 }
 修复内容的格式化和上面一样，并且和agent信息保持一致，只修改arg_value的内容，其余内容不变
 """
+}
