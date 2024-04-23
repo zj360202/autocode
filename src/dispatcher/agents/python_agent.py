@@ -3,8 +3,8 @@ python agent中比较难的地方在于，生成的很多的函数，在函数�
 可能需要每一个文件函数的列表和说明，方便在生成计划的时候，更加有条理
 """
 import os
-from agent import format_agent_result
-from shell_agent import windows_shell_agent, linux_shell_agent
+from dispatcher.agents.agent import format_agent_result
+from dispatcher.agents.shell_agent import windows_shell_agent, linux_shell_agent
 
 
 @format_agent_result
@@ -18,6 +18,7 @@ def run_python(code: str,
 
     Args:
         code (str): 代码主体部分
+        env_name (str, optional): conda env环境，在用户提供需求的时候指定，默认是None
         pip_info (str, optional): pip需要安装的内容. Defaults to None.
         args_dict (dict, optional): python代码执行中需要传入的参数对{key:value}的形式
         return_keys (list, optional): 执行后，需要返回的字段列表

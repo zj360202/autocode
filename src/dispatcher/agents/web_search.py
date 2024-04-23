@@ -1,7 +1,7 @@
 import requests
 from loguru import logger
 
-from dispatcher.agents import format_agent_result
+from dispatcher.agents.agent import format_agent_result
 
 
 # Search engine related. You don't really need to change this.

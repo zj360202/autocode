@@ -11,8 +11,7 @@ from loguru import logger
 from utils.comm_utils import get_full_path
 from utils.logger import set_logger
 from dispatcher.agents.agent import AgentFactory
-from dispatcher.prompt.prompt import prompt_user_demand_create_project_input, prompt_agents
-from dispatcher.prompt.prompt import prompt_user_demand_create_project_output, prompt_error_fix_input
+from dispatcher.prompt.prompt_factory import prompt_pc, prompt_fix_error
 from dispatcher.models.qwen import ModelQWen
 from dispatcher.models.parse_data import parse_answer
 
@@ -56,6 +55,7 @@ class Plan:
             if result.get('status_code') == 0:
                 # 执行成功
                 rst = result.get('data')
+                logger.info(f'执行结果: {rst}')
                 return rst
             else:
                 err_msg = result.get('err_msg')
@@ -64,11 +64,12 @@ class Plan:
                     'agent': plan_info['agent'],
                     'err_msg': err_msg
                 }
-                prompt = prompt_error_fix_input.format(**new_plan)
+                extracts, prompt = prompt_fix_error(**new_plan)
+                logger.info(f'执行失败，重新构建Prompt: {prompt}')
                 answer = self.model(prompt)
     
                 # 解析回答的内容
-                new_plan_info = parse_answer('error_fix', answer)
+                new_plan_info = parse_answer(answer, titles=extracts)
                 return self.exec(new_plan_info)
 
     def cache(self):
@@ -113,31 +114,22 @@ def create_project(name: str,
 
     ##################################################
     # 开始执行
-    first_prompt = prompt_user_demand_create_project_input.format(demand=project_subject,
-                                                                  check_desc=check_desc,
-                                                                  prompt_agents=prompt_agents)
-    first_prompt += prompt_user_demand_create_project_output
+    extracts, prompt = prompt_pc(project_subject, check_desc=check_desc)
     # print(f'prompt:\n{first_prompt}')
     
     # 访问大模型，获取返回的结果
-    answer = model.model(first_prompt)
+    answer = model.model(prompt)
     
     # 解析回答的内容
-    key_infos = parse_answer('pc', answer)
+    key_infos = parse_answer(answer, titles=extracts)
     
-    # 1. 创建项目目录结构
-    
-    # 2. 完成项目执行计划
-    plans = key_infos['plans']
-    
-    # 3. 完成验证执行计划
-    check_plans = key_infos['check_plans']
-    #
-    # # 解析回答的内容
-    #
-    # is_continue = True
-    # while is_continue:
-    #     pass
-
-
+    # 开始完成执行计划
+    plan = Plan(language=language, model=model_name, 
+                 search_engine=search_engine, env_name=env_name)
+    for k, v in key_infos.items():
+        # 两个key, 一个是用需求，一个是效果验证
+        logger.info(f'开始完成任务: {k}')
+        for plan_dict in v:
+            logger.info(f'执行计划详情: {plan_dict}')
+            plan.exec(plan_dict)
 

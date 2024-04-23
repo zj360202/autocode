@@ -11,13 +11,13 @@ agent_name: agent_desc
     arg2(arg_type): arg2_desc
 agent列表如下，
 run_python: 执行python code，并返回结果.
-        code (str): 代码主体部分
+        code (str): 代码主体部分，代码不能为None或空
         pip_info (str, optional): pip需要安装的内容. Defaults to None.
         import_info (str, optional): import或者from需要依赖的模块信息. Defaults to None.
         args_dict (dict, optional): python代码执行中需要传入的参数对{key:value}的形式
         return_keys (list, optional): 执行后，需要返回的字段列表
 merge_code: 将传入python代码进行合并.
-        code (str): 代码主体部分
+        code (str): 代码主体部分，代码不能为None或空
         merge_file_path (str): 需要合并的python代码路径
         pip_info (str, optional): pip需要安装的内容
         import_info (str, optional): import或者from需要依赖的模块信息
@@ -44,8 +44,8 @@ windows_shell_agent: windows 下执行command命令
 项目结构 请用tree的方式描述项目的目录结果, <>的内容表示需要生成的内容：
 <project_structure_tree>
 
-任务拆解如下，<>的内容是需要进行替换的内容
-用户需求:
+任务拆解说明如下，标题必须在回复出现，<>的内容是需要进行替换的内容
+用户需求拆解如下(包括项目目录创建步骤):
 ```json
 [
     # 一个字典代表一个步骤
@@ -59,7 +59,7 @@ windows_shell_agent: windows 下执行command命令
     }
 ]
 ```
-验证项目效果描述:
+验证项目效果拆解如下:
 ```json
 [
     # 一个字典代表一个步骤

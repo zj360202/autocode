@@ -1,19 +1,19 @@
-import inspect
-from abc import ABC, abstractmethod
+from functools import wraps
 
 from utils.comm_utils import agent_desc
 
 
-
-def format_agent_result(agent_func):
+def format_agent_result(func):
     # 将agent的返回值格式化
-    def wrapper():
+    @wraps(func)
+    def wrapper(*args, **kwargs):
         try:
-            rst = agent_func()
+            rst = func(*args, **kwargs)
             result = {'status_code': 0, 'data': rst}
         except Exception as e:
             result = {'status_code': 1, 'err_msg': str(e)}
         return result
+    return wrapper
 
 
 

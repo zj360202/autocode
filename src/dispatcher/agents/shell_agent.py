@@ -4,7 +4,7 @@ shell agent中需求区分windows和linux
 
 
 import subprocess
-from agent import format_agent_result
+from dispatcher.agents.agent import format_agent_result
 
 
 @format_agent_result

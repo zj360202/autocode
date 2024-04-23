@@ -25,7 +25,7 @@ def agent_desc(agent_name, func):
 
     Args:
         agent_name (_type_): agent名称，是
-        func (_type_): _description_
+        func (_type_): 函数
 
     Raises:
         ValueError: _description_
@@ -35,7 +35,7 @@ def agent_desc(agent_name, func):
     # 获取函数的doc注释
     func_doc = inspect.getdoc(func)
     # 获取参数信息
-    func_args = inspect.getfullargspec(func)
+    func_args = inspect.getfullargspec(func.__wrapped__)
     # 提取参数列表
     arg_list = func_args.args
     ################################################################
