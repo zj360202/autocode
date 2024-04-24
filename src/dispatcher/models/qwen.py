@@ -29,9 +29,10 @@ class ModelQWen:
         while True:
             try:
                 parse.click()
+                logger.info('复制模型返回的内容')
                 break
             except Exception as e:
-                print('等待5s')
+                logger.info('等待5s')
                 time.sleep(5)
                 parse = answer_ele.ele('css:div.rightArea--waHL0DVo > div:nth-child(3)')
         time.sleep(1)

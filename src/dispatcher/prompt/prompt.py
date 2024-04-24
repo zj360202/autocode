@@ -58,7 +58,7 @@ prompt_user_demand_create_project_output = {
 项目结构 请用tree的方式描述项目的目录结果, <>的内容表示需要生成的内容：
 <project_structure_tree>
 
-任务拆解如下，<>的内容是需要进行替换的内容
+任务拆解如下，<>的内容是需要进行替换的内容,如果arg_value是python代码用\"""包含起来,对于可选参数，如果arg_value为None，则不用设定
 用户需求:
 ```json
 [

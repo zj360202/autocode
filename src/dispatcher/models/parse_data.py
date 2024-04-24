@@ -1,6 +1,8 @@
 import json
+from loguru import logger
 
 
+# 获取千问的md，并解析
 def _parse_md(markdown: str, titles: list):
     """
     解析markdown中的内容
@@ -18,10 +20,13 @@ def _parse_md(markdown: str, titles: list):
 
     # 判定当前内容是否在三个引号中，表示是python code
     tri_quota = False
+    loop = 0
     for line in markdown.split('\n'):
+        loop+=1
         if title_idx < len(titles) and titles[title_idx] in line:
             if find_title != -1:
                 if content_type == 'json':
+                    logger.info(f'content:{content}')
                     contents[titles[title_idx-1]] = json.loads(content)
                 else:
                     contents[titles[title_idx-1]] = content
@@ -38,14 +43,28 @@ def _parse_md(markdown: str, titles: list):
         elif start_content:
             # python代码中的"""转义json会报错
             # python代码中的换行也会报错，都需要转义
+            line = line.replace("\r", '').replace('\n', '')
             if '"""' in line:
                 line = line.replace('"""', '"')
                 tri_quota = not tri_quota
-            if tri_quota:
-                line = line.replace('\n', '@@')
+            if '"' in line:
+                line = line.replace('"', "'")
+            lns = line.split(':')
+            if len(lns) > 1:
+                v = lns[1].strip()
+                if v == 'None':
+                    v = ''
+                elif v.startswith('"') and not v.endswith('"'):
+                    v += '@@'
+                elif tri_quota:
+                    v += '@@'
+                line = lns[0] + ':' + lns[1]
+            # print(f'line:{line}')
             content += line
+            # print(f'content:{content}')
     if content != '':
         # 最后一个需要放到字典中去
+        logger.info(f'content:{content}')
         if content_type == 'json':
             contents[titles[title_idx-1]] = json.loads(content)
         else:
