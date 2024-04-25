@@ -14,6 +14,7 @@ from dispatcher.agents.agent import AgentFactory
 from dispatcher.prompt.prompt_factory import prompt_pc, prompt_fix_error
 from dispatcher.models.qwen_o import ModelQWenOffice
 from dispatcher.models.parse_data import parse_answer
+from dispatcher.global_params import global_params
 
 
 class Plan:
@@ -101,6 +102,12 @@ def create_project(name: str,
             raise PermissionError("创建目录{path}权限不足")
         except Exception:
             raise Exception("创建目录{path}失败")
+    
+    path = path.replace('\\', '/')
+    if not path.endswith('/'):
+        path = path + '/'
+    global_params['project_path'] = path
+    logger.info(f'项目路径:{path}')
 
     # 格式化日志路径
     log_path = get_full_path(log_path, path)
