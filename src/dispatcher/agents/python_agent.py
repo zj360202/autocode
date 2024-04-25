@@ -3,41 +3,42 @@ python agent中比较难的地方在于，生成的很多的函数，在函数�
 可能需要每一个文件函数的列表和说明，方便在生成计划的时候，更加有条理
 """
 import os
+from loguru import logger
 from dispatcher.agents.agent import format_agent_result
-from dispatcher.agents.shell_agent import windows_shell_agent, linux_shell_agent
+from dispatcher.agents.shell_agent import shell_agent
 
 
-@format_agent_result
-def run_python(code: str, 
-               env_name: str = None,
-               pip_info: str = None, 
-               args_dict: dict = None, 
-               return_keys: list = None):
-    """
-    执行python code，并返回结果
+# @format_agent_result
+# def run_python(code: str, 
+#                env_name: str = None,
+#                pip_info: str = None, 
+#                args_dict: dict = None, 
+#                return_keys: list = None):
+#     """
+#     执行python code，并返回结果
 
-    Args:
-        code (str): 代码主体部分
-        env_name (str, optional): conda env环境，在用户提供需求的时候指定，默认是None
-        pip_info (str, optional): pip需要安装的内容. Defaults to None.
-        args_dict (dict, optional): python代码执行中需要传入的参数对{key:value}的形式
-        return_keys (list, optional): 执行后，需要返回的字段列表
-    Returns:
-        dict: 需要返回的字典数据
-    """
-    if pip_info is not None:
-        if os.system() == 'Windows':
-            pips = pip_info.replace('\n', ';')
-            windows_shell_agent(pips, env_name=env_name)
-        else:
-            pips = pip_info.replace('\n', ' && ')
-            linux_shell_agent(pips, env_name=env_name)
-    exec(code, args_dict)
-    result = {}
-    if return_keys and len(return_keys) > 0:
-        for k in return_keys:
-            result[k] = args_dict[k]
-    return result
+#     Args:
+#         code (str): 代码主体部分
+#         env_name (str, optional): conda env环境，在用户提供需求的时候指定，默认是None
+#         pip_info (str, optional): pip需要安装的内容. Defaults to None.
+#         args_dict (dict, optional): python代码执行中需要传入的参数对{key:value}的形式
+#         return_keys (list, optional): 执行后，需要返回的字段列表
+#     Returns:
+#         dict: 需要返回的字典数据
+#     """
+#     logger.info(f'执行python: python代码: {code}')
+#     if pip_info is not None:
+#         if os.system() == 'Windows':
+#             pips = pip_info.replace('\n', ';')
+#         else:
+#             pips = pip_info.replace('\n', ' && ')
+#         shell_agent(pips, env_name=env_name)
+#     exec(code, args_dict)
+#     result = {}
+#     if return_keys and len(return_keys) > 0:
+#         for k in return_keys:
+#             result[k] = args_dict[k]
+#     return result
 
 
 @format_agent_result
@@ -52,6 +53,7 @@ def merge_code(code: str, merge_file_path: str):
         code (str): 代码主体部分
         merge_file_path (str): 需要合并的python代码路径
     """
+    logger.info(f'代码合并: python代码: {code} 合并文件: {merge_file_path}')
     lines = []
     codes = []
     # 先获取原文件中的内容
@@ -99,8 +101,13 @@ def create_dir(dir_path: str):
     Args:
         dir_path (str): 目录信息
     """
-    if not os.path.exists:
-        os.makedirs(dir_path, exist_ok=True)
+    logger.info(f'创建目录: {create_dir}')
+    basename = os.path.basename(dir_path)
+    logger.info(f'路径: {basename}')
+    if not os.path.exists(basename):
+        os.makedirs(basename, exist_ok=True)
+    if not os.path.exists(dir_path):
+        open(dir_path, 'w').close()
 
 
 @format_agent_result
@@ -111,6 +118,7 @@ def write_file(file_path: str, file_content: str):
         file_path (str): 目标文件
         file_content (str): 文件内容
     """
+    logger.info(f'写文件: 文件路径:{file_path} 文件内容: {file_content}')
     dir_path = os.path.dirname(file_path)
     create_dir(dir_path)
 
@@ -126,8 +134,15 @@ def append_file(file_path: str, file_content: str):
         file_path (str): 文件路径
         file_content (str): 文件内容
     """
+    logger.info(f'追加文件内容: 文件路径:{file_path} 文件内容: {file_content}')
     dir_path = os.path.dirname(file_path)
     create_dir(dir_path)
 
     with open(file_path, 'a') as merge_file:
         merge_file.write(file_content)
+
+
+# a =  {'desc': '在test.py中写入包含hello world打印方法的代码', 'agent': {'name': 'write_file', 'args': {'file_path': 'test_project/test.py', 'file_content': "def print_hello_world():@@    print('Hello World')"}}}
+# args = a['agent']['args']
+# rst = write_file(**args)
+# print(rst)

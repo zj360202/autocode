@@ -1,36 +1,29 @@
-用户需求:
+
+用户需求: 
 生成一个测试项目test, 只包含一个文件test.py, 包含一个打印hello word的方法
 
 验证项目效果描述:
-执行项目文件，输出hello world
-
+执行项目，输出hello world
 
 描述规范是:
 agent_name: agent_desc
     arg1(arg_type): arg1_desc
     arg2(arg_type): arg2_desc
 agent列表如下，
-run_python: 执行python code，并返回结果.
-        code (str): 代码主体部分，代码不能为None或空
-        pip_info (str, optional): pip需要安装的内容. Defaults to None.
-        import_info (str, optional): import或者from需要依赖的模块信息. Defaults to None.
-        args_dict (dict, optional): python代码执行中需要传入的参数对{key:value}的形式
-        return_keys (list, optional): 执行后，需要返回的字段列表
-merge_code: 将传入python代码进行合并.
-        code (str): 代码主体部分，代码不能为None或空
-        merge_file_path (str): 需要合并的python代码路径
-        pip_info (str, optional): pip需要安装的内容
-        import_info (str, optional): import或者from需要依赖的模块信息
+merge_code: 将传入python代码进行合并.先判断import_info中的import或from信息是否已经包含在目标文件中.如果不包含，才添加相关信息，如果包含就不添加了.然后code直接追加到最后面.
+	code (str): 代码主体部分
+	merge_file_path (str): 需要合并的python代码路径
 create_dir: 创建目录.
-        dir_path (str): 目录信息
-        file_path (str): 目标文件
-        file_content (str): 文件内容
+	dir_path (str): 目录信息
 write_file: 写文件.
-        file_path (str): 目标文件
-        file_content (str): 文件内容
-windows_shell_agent: windows 下执行command命令
-        command (str): windows shell command
-        env_name (str, optional): conda环境，需要在用户提需求的时候进行指定
+	file_path (str): 目标文件
+	file_content (str): 文件内容
+append_file: 追加内容到文件中.
+	file_path (str): 文件路径
+	file_content (str): 文件内容
+shell_agent: windows 下执行command命令.
+	command (str): windows shell command
+	env_name (str, optional): conda环境，需要在用户提需求的时候进行指定
 
 
 请给出对于用户需求和验证效果描述的执行计划，给出的计划必须满足如下要求：
@@ -44,29 +37,31 @@ windows_shell_agent: windows 下执行command命令
 项目结构 请用tree的方式描述项目的目录结果, <>的内容表示需要生成的内容：
 <project_structure_tree>
 
-任务拆解说明如下，标题必须在回复出现，<>的内容是需要进行替换的内容,python代码用"""包含
-用户需求拆解如下:
+任务拆解如下，<>的内容是需要进行替换的内容,如果arg_value是python代码用"""包含起来,对于可选参数，如果arg_value为None，则不用设定
+用户需求:
 ```json
 [
     # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
-        "<agent_name>": {
-            args: {
+        "agent": {
+            "name": <agent_name>
+            "args": {
                 <arg_name>: <arg_value>
             }
         }
     }
 ]
 ```
-验证项目效果拆解如下:
+验证项目效果描述(包含跳转项目目录和执行shell):
 ```json
 [
     # 一个字典代表一个步骤
     {
         "desc": "<reasoning>",
-        "<agent_name>": {
-            args: {
+        "agent": {
+            "name": <agent_name>
+            "args": {
                 <arg_name>: <arg_value>
             }
         }

@@ -1,7 +1,9 @@
+import re
 import json
 from loguru import logger
 
-
+# 主要在json的格式中判定是否是[]{},组成的字符串
+pattern = r'[\[\]\{\}\,]+'
 # 获取千问的md，并解析
 def _parse_md(markdown: str, titles: list):
     """
@@ -26,7 +28,7 @@ def _parse_md(markdown: str, titles: list):
         if title_idx < len(titles) and titles[title_idx] in line:
             if find_title != -1:
                 if content_type == 'json':
-                    logger.info(f'content:{content}')
+                    logger.debug(f'content:{content}')
                     contents[titles[title_idx-1]] = json.loads(content)
                 else:
                     contents[titles[title_idx-1]] = content
@@ -43,28 +45,57 @@ def _parse_md(markdown: str, titles: list):
         elif start_content:
             # python代码中的"""转义json会报错
             # python代码中的换行也会报错，都需要转义
-            line = line.replace("\r", '').replace('\n', '')
+            if line.endswith('\r\n'):
+                line = line.replace("\r\n", '')
+            if line.endswith('\r'):
+                line = line.replace("\r", '')
+            elif line.endswith('\n'):
+                line = line.replace("\n", '')
+            
+            line = line.strip()
             if '"""' in line:
                 line = line.replace('"""', '"')
                 tri_quota = not tri_quota
-            if '"' in line:
-                line = line.replace('"', "'")
             lns = line.split(':')
             if len(lns) > 1:
-                v = lns[1].strip()
+                if len(lns) > 2:
+                    v = ':'.join(lns[1:]).strip()
+                else:
+                    v = lns[1].strip()
+                # 替换字符串中的双引号、换行、转义符
+                v = v.replace('\\n', '@@')
+                v = v.replace('\\', '')
+                if v.endswith('"'):
+                    new_v = v[1:-1]
+                    new_v = new_v.replace('"', "'")
+                    v = f'"{new_v}"'
+                elif v.endswith('",'):
+                    new_v = v[1:-2]
+                    new_v = new_v.replace('"', "'")
+                    v = f'"{new_v}",'
+                else:
+                    new_v = v
+                    new_v = new_v.replace('"', "'")
+                    v = new_v
+                
+                # 将value中的换行替换掉
                 if v == 'None':
-                    v = ''
-                elif v.startswith('"') and not v.endswith('"'):
+                    v = '""'
+                elif v.startswith('"') and not v.endswith('"') and not v.endswith('",'):
                     v += '@@'
                 elif tri_quota:
                     v += '@@'
-                line = lns[0] + ':' + lns[1]
+                
+                line = lns[0] + ':' + v
+            else:
+                if not re.fullmatch(pattern, line) and not line.endswith('"'):
+                    line += '@@'
             # print(f'line:{line}')
             content += line
             # print(f'content:{content}')
     if content != '':
         # 最后一个需要放到字典中去
-        logger.info(f'content:{content}')
+        logger.debug(f'content:{content}')
         if content_type == 'json':
             contents[titles[title_idx-1]] = json.loads(content)
         else:

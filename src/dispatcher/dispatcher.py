@@ -20,8 +20,9 @@ class Plan:
     """
     执行计划
     """
-    def __init__(self, language: str, model, 
+    def __init__(self, object_path: str, language: str, model, 
                  search_engine: str, env_name: str):
+        self.object_path = object_path
         self.language = language
         self.model = model
         self.search_engine = search_engine
@@ -39,8 +40,11 @@ class Plan:
         """
         agent_info = plan_info.get('agent')
         agent_name = agent_info['name']
-        agent = AgentFactory.get_agent(agent_name)
+        agent = AgentFactory.get_agent(agent_name)['func']
         if 'args' in agent_info:
+            args = dict(agent_info['args'])
+            # args = dict(agent_info['args'])
+            logger.debug(f'args:{args}')
             result = agent(**agent_info['args'])
         else:
             result = agent()
@@ -70,6 +74,7 @@ class Plan:
     
                 # 解析回答的内容
                 new_plan_info = parse_answer(answer, titles=extracts)
+                print(f'解析answer结果, new_plan_info: {new_plan_info}')
                 return self.exec(new_plan_info)
 
     def cache(self):
@@ -113,6 +118,7 @@ def create_project(name: str,
         model = ModelQWen()
 
     ##################################################
+    logger.info('开始项目')
     # 开始执行
     extracts, prompt = prompt_pc(project_subject, check_desc=check_desc)
     # print(f'prompt:\n{first_prompt}')
@@ -122,9 +128,10 @@ def create_project(name: str,
     
     # 解析回答的内容
     key_infos = parse_answer(answer, titles=extracts)
+    logger.info(f'解析answer结果, key_infos: {key_infos}')
     
     # 开始完成执行计划
-    plan = Plan(language=language, model=model_name, 
+    plan = Plan(object_path=path, language=language, model=model_name, 
                  search_engine=search_engine, env_name=env_name)
     for k, v in key_infos.items():
         # 两个key, 一个是用需求，一个是效果验证
@@ -132,4 +139,5 @@ def create_project(name: str,
         for plan_dict in v:
             logger.info(f'执行计划详情: {plan_dict}')
             plan.exec(plan_dict)
+
 

@@ -7,6 +7,9 @@ def format_agent_result(func):
     # 将agent的返回值格式化
     @wraps(func)
     def wrapper(*args, **kwargs):
+        for k, v in kwargs.items():
+            # 这个在处理成json的时候，有将\n转为@@
+            kwargs[k] = v.replace('@@', '\n')
         try:
             rst = func(*args, **kwargs)
             result = {'status_code': 0, 'data': rst}

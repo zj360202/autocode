@@ -74,7 +74,7 @@ prompt_user_demand_create_project_output = {
     }
 ]
 ```
-验证项目效果描述:
+验证项目效果描述(包含跳转项目目录和执行shell):
 ```json
 [
     # 一个字典代表一个步骤
