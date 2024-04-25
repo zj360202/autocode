@@ -5,7 +5,7 @@ from DrissionPage.errors import ElementLostError
 from loguru import logger
 import pyperclip
 
-class ModelQWen:
+class ModelQWenOffice:
     """
     通过浏览器访问qwen
     在浏览器图标上右键，在属性中的目标位置，在最后面添加" --explicitly-allowed-ports=6666"(前面有空格)
@@ -13,10 +13,21 @@ class ModelQWen:
     """
     def __init__(self) -> None:
         self.page = ChromiumPage(6666)
-        # 这个地方需要替换成自己千问的会话session
-        self.page.get('https://tongyi.aliyun.com/qianwen/')
-        time.sleep(1)
+        # 获取chrome的最后一个tab
         self.new_page = self.page.get_tab(self.page.latest_tab).page
+        # 判定页面是否已经打开
+        if self.new_page.url.startswith('https://tongyi.aliyun.com/qianwen/'):
+            time.sleep(1)
+        else:
+            # 打开千问页面
+            self.page.get('https://tongyi.aliyun.com/qianwen/')
+            self.new_page = self.page.get_tab(self.page.latest_tab).page
+            time.sleep(1)
+            # 打开新的会话
+            self.new_page.ele('css:#chat-content > div.flex.mt-4 > div.side--ZR10Ab5M > button').click()
+            time.sleep(3)
+        
+        
         
     def model(self, question):
         textarea_ele = self.new_page.ele('tag:textarea@@class:ant-input')

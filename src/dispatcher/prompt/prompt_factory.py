@@ -43,4 +43,7 @@ def prompt_fix_error(desc: str, agent: str, err_msg: str):
     extracts = prompt_error_fix_input['extract']
     prompt = prompt_error_fix_input['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
     
+    extracts += prompt_user_demand_create_project_output['extract']
+    prompt += prompt_user_demand_create_project_output['prompt']
+    
     return extracts, prompt

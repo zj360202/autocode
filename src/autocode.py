@@ -16,7 +16,7 @@ def parse_args(args=None, namespace=None):
     project_create.add_argument("-p", "--path", required=True, help="项目存放路径")
     project_create.add_argument("-l", "--language", type=str, default='python', required=False,
                                 help="主要编码语言")
-    project_create.add_argument("-m", "--model_name", type=str, default='qwen', required=False, help="模型")
+    project_create.add_argument("-m", "--model_name", type=str, default='qwen-o', required=False, help="模型")
     project_create.add_argument("-s", "--search_engine", type=str, default='bing', required=False,
                                 help="搜索引擎")
     project_create.add_argument("--env_name", type=str, required=False,

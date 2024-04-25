@@ -8,6 +8,26 @@
 
 ### 🚀 快速开始
 
+#### 🔧 前期准备
+- 注册或登录千问官网https://tongyi.aliyun.com/qianwen/, 在项目运作中，会自动打开千问，必须保证已经登录
+- git clone https://github.com/zj360202/autocode.git
+- cd autocode
+- pip install -e .
+
+<font color ="red">*在使用过程中, 有可能会失败，这个主要可能是模型回复的样式不太理想，目前测试中几乎都成功，有失败的，可以提交issue</font>
+
+#### ✨️ 命令参数
+```shell script
+autocode pc -n test -l python -p "d:/" -m qwen-o --project_subject "生成一个测试项目test, 只包含一个文件test.py, 包含一个打印hello word的方法" --check_desc "执行项目文件，输出hello world"
+```
+- `pc`: create_project, 创建目录，子命令，后续参数都和这个子命令进行绑定
+- `-n`: --name, 项目名称
+- `-l`: --language, 主要编码语言, 暂时只支持python
+- `-p`: --project_dir, 项目目录
+- `-m`: --model, 支持的模型，qwen-o(qwen官方网站), qwen-i(千问接口，暂不支持)
+- `--project_subject`: 项目需求描述
+- `--check_desc`: 项目创建完成后的验证内容描述
+
 #### 📜 任务清单
 
 - [x] 生成一个测试项目test, 只包含一个文件test.py, 包含一个打印hello word的方法

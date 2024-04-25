@@ -102,7 +102,12 @@ def create_dir(dir_path: str):
         dir_path (str): 目录信息
     """
     logger.info(f'创建目录: {create_dir}')
-    basename = os.path.basename(dir_path)
+    if dir_path.endswith('/'):
+        basename = dir_path[:-1]
+    elif '.' not in dir_path:
+        basename = dir_path
+    else:
+        basename = os.path.basename(dir_path)
     logger.info(f'路径: {basename}')
     if not os.path.exists(basename):
         os.makedirs(basename, exist_ok=True)

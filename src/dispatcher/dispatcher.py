@@ -12,7 +12,7 @@ from utils.comm_utils import get_full_path
 from utils.logger import set_logger
 from dispatcher.agents.agent import AgentFactory
 from dispatcher.prompt.prompt_factory import prompt_pc, prompt_fix_error
-from dispatcher.models.qwen import ModelQWen
+from dispatcher.models.qwen_o import ModelQWenOffice
 from dispatcher.models.parse_data import parse_answer
 
 
@@ -114,8 +114,8 @@ def create_project(name: str,
     os.makedirs(cache_path, exist_ok=True)
 
     model = None
-    if model_name == 'qwen':
-        model = ModelQWen()
+    if model_name == 'qwen-o':
+        model = ModelQWenOffice()
 
     ##################################################
     logger.info('开始项目')
