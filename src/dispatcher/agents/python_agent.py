@@ -8,6 +8,7 @@ from typing import Any
 from dispatcher.agents.agent import format_agent_result
 from dispatcher.agents.shell_agent import shell_agent
 from dispatcher.global_params import global_params
+from utils.comm_utils import get_full_path
 
 
 # @format_agent_result
@@ -58,7 +59,7 @@ def merge_code(code: str, merge_file_path: str):
     project_path = ''
     if 'project_path' in global_params:
         project_path = global_params['project_path']
-    merge_file_path = project_path + merge_file_path
+    merge_file_path = get_full_path(project_path, merge_file_path)
     logger.info(f'代码合并: python代码: {code} 合并文件: {merge_file_path}')
     lines = []
     codes = []
@@ -110,7 +111,7 @@ def create_dir(dir_path: str):
     project_path = ''
     if 'project_path' in global_params:
         project_path = global_params['project_path']
-    dir_path = project_path + dir_path
+    dir_path = get_full_path(project_path, dir_path)
     logger.info(f'创建目录: {dir_path}')
     if dir_path.endswith('/'):
         basename = dir_path[:-1]
@@ -136,7 +137,7 @@ def write_file(file_path: str, file_content: str):
     project_path = ''
     if 'project_path' in global_params:
         project_path = global_params['project_path']
-    file_path_new = project_path + file_path
+    file_path_new = get_full_path(project_path, file_path)
     logger.info(f'写文件: 文件路径:{file_path_new} 文件内容: {file_content}')
     dir_path = os.path.dirname(file_path)
     create_dir(dir_path)
@@ -156,7 +157,7 @@ def append_file(file_path: str, file_content: str):
     project_path = ''
     if 'project_path' in global_params:
         project_path = global_params['project_path']
-    file_path = project_path + file_path
+    file_path = get_full_path(project_path, file_path)
     logger.info(f'追加文件内容: 文件路径:{file_path} 文件内容: {file_content}')
     dir_path = os.path.dirname(file_path)
     create_dir(dir_path)
