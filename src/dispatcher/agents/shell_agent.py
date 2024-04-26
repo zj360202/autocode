@@ -16,6 +16,8 @@ def shell_agent(command: str, env_name: str = None):
     Args:
         command (str): windows shell command
         env_name (str, optional): conda环境，需要在用户提需求的时候进行指定
+    Returns:
+        str: shell执行结果
     """
     if sys.platform == 'win32':
         full_command = 'powershell.exe '

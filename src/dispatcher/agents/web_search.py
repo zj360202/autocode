@@ -11,7 +11,7 @@ GOOGLE_SEARCH_ENDPOINT = "https://customsearch.googleapis.com/customsearch/v1"
 
 # Specify the number of references from the search engine you want to use.
 # 8 is usually a good number.
-REFERENCE_COUNT = 8
+REFERENCE_COUNT = 1
 
 # Specify the default timeout for the search engine. If the search engine
 # does not respond within this time, we will return an error.
@@ -27,7 +27,7 @@ def bing_search(query: str, subscription_key: str) -> list:
         query: 搜索内容
         subscription_key: 订阅密钥
     Returns:
-        list: 搜索结果
+        str: 搜索结果
     """
     params = {
         "q": query, 

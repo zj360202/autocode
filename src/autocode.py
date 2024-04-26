@@ -14,17 +14,19 @@ def parse_args(args=None, namespace=None):
     project_create = project.add_parser("project_create", aliases=['pc'], help="创建项目, 支持创建一般的项目继续创建")
     project_create.add_argument("-n", "--name", required=True, help="任务名称")
     project_create.add_argument("-p", "--path", required=True, help="项目存放路径")
+    project_create.add_argument("-s", "--strategy", type=str, default='c', help="项目创建策略 c(完成优先)|e(效果优先) 默认c")
+    project_create.add_argument("-m", "--mode", type=str, default='conti', help="项目创建模式 conti(延续)|cover(重建)")
     project_create.add_argument("-l", "--language", type=str, default='python', required=False,
-                                help="主要编码语言")
-    project_create.add_argument("-m", "--model_name", type=str, default='qwen-o', required=False, help="模型")
-    project_create.add_argument("-s", "--search_engine", type=str, default='bing', required=False,
-                                help="搜索引擎")
+                                help="主要编码语言(默认python)")
+    project_create.add_argument("--model_name", type=str, default='qwen-o', required=False, help="模型(默认qwen-o)")
+    project_create.add_argument("--search_engine", type=str, default='bing', required=False,
+                                help="搜索引擎(默认bing)")
     project_create.add_argument("--env_name", type=str, required=False,
                                 help="conda虚拟机环境")
     project_create.add_argument("--log_path", type=str, default='./logs', required=False,
-                                help="日志路径, 默认在项目路径的logs目录")
+                                help="日志路径, 默认./logs")
     project_create.add_argument("--cache_path", type=str, default='./cache', required=False,
-                                help="缓存路径, 便于中断项目的完善")
+                                help="缓存路径, 默认./cache")
     project_create.add_argument("--project_subject", type=str, required=True,
                                 help="项目主题内容")
     project_create.add_argument("--check_desc", type=str, required=True,

@@ -22,12 +22,15 @@ class Plan:
     执行计划
     """
     def __init__(self, object_path: str, language: str, model, 
-                 search_engine: str, env_name: str):
+                 search_engine: str, env_name: str, cache_dir: str,
+                 mode: str = 'c'):
         self.object_path = object_path
         self.language = language
         self.model = model
         self.search_engine = search_engine
         self.env_name = env_name
+        self.cache_dir = cache_dir
+        self.mode = mode
 
         # 执行步骤中的参数
         self.max_loop = 10  # 如果执行失败，最大重试次数
@@ -47,6 +50,14 @@ class Plan:
             # args = dict(agent_info['args'])
             logger.debug(f'args:{args}')
             result = agent(**agent_info['args'])
+            if 'check' in plan_info and result.get('status_code') == 0:
+                # 如果当前agent执行正确，且有验证agent列表
+                check_plans = plan_info['check']
+                for check_plan in check_plans:
+                    # 如果验证流程失败，则将失败信息返回
+                    check_result = self._exec_plan(check_plan)
+                    if result.get('status_code') != 0:
+                        return check_result
         else:
             result = agent()
         return result
@@ -67,7 +78,8 @@ class Plan:
                 new_plan = {
                     'desc': plan_info['desc'],
                     'agent': plan_info['agent'],
-                    'err_msg': err_msg
+                    'err_msg': err_msg,
+                    'mode': self.mode
                 }
                 extracts, prompt = prompt_fix_error(**new_plan)
                 logger.info(f'执行失败，重新构建Prompt: {prompt}')
@@ -84,6 +96,7 @@ class Plan:
 
 def create_project(name: str,
                    path: str,
+                   mode: str,
                    language: str,
                    model_name: str,
                    search_engine: str,
@@ -127,7 +140,7 @@ def create_project(name: str,
     ##################################################
     logger.info('开始项目')
     # 开始执行
-    extracts, prompt = prompt_pc(project_subject, check_desc=check_desc)
+    extracts, prompt = prompt_pc(project_subject, check_desc=check_desc, mode=mode)
     # print(f'prompt:\n{first_prompt}')
     
     # 访问大模型，获取返回的结果
@@ -137,9 +150,12 @@ def create_project(name: str,
     key_infos = parse_answer(answer, titles=extracts)
     logger.info(f'解析answer结果, key_infos: {key_infos}')
     
+    # cache
+    cache_plans = []
+    
     # 开始完成执行计划
     plan = Plan(object_path=path, language=language, model=model_name, 
-                 search_engine=search_engine, env_name=env_name)
+                 search_engine=search_engine, env_name=env_name, mode=mode)
     for k, v in key_infos.items():
         # 两个key, 一个是用需求，一个是效果验证
         logger.info(f'开始完成任务: {k}')

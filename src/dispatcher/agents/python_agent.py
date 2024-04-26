@@ -4,6 +4,7 @@ python agent中比较难的地方在于，生成的很多的函数，在函数�
 """
 import os
 from loguru import logger
+from typing import Any
 from dispatcher.agents.agent import format_agent_result
 from dispatcher.agents.shell_agent import shell_agent
 from dispatcher.global_params import global_params
@@ -162,6 +163,21 @@ def append_file(file_path: str, file_content: str):
 
     with open(file_path, 'a') as merge_file:
         merge_file.write(file_content)
+        
+
+@format_agent_result
+def bool_equal(obj1: Any, obj2: Any):
+    """
+    判定两个目标是否相同
+
+    Args:
+        obj1 (Any): 目标1
+        obj2 (Any): 目标2, 目标1和目标2类型必须一样
+    Returns:
+        bool: 判定目标相等结果
+    """
+    return obj1 == obj2
+    
 
 
 # a =  {'desc': '在test.py中写入包含hello world打印方法的代码', 'agent': {'name': 'write_file', 'args': {'file_path': 'test_project/test.py', 'file_content': "def print_hello_world():@@    print('Hello World')"}}}

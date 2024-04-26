@@ -1,6 +1,7 @@
 from .prompt import prompt_agents, prompt_user_demand_create_project_input
-from .prompt import prompt_user_demand_create_project_output, prompt_demand_analyse_input
-from .prompt import prompt_python_code_input, prompt_python_code_output, prompt_error_fix_input
+
+from dispatcher.prompt.c.pc_prompt import prompt_user_demand_create_project_output as c_ud_pc, prompt_error_fix_output as c_ef
+from dispatcher.prompt.e.pc_prompt import prompt_user_demand_create_project_output as e_ud_pc, prompt_error_fix_output as e_ef
 from dispatcher.agents.agent import AgentFactory
 
 agent_infos = ""
@@ -15,7 +16,7 @@ def _load_agent():
         for k, v in agent_func_mapping.items():
             agent_infos += f'{v["desc"]}'
 
-def prompt_pc(project_subject: str, check_desc: str):
+def prompt_pc(project_subject: str, check_desc: str, mode: str='c'):
     # 初始化agent信息
     _load_agent()
     
@@ -33,17 +34,28 @@ def prompt_pc(project_subject: str, check_desc: str):
     prompt += prompt_agents['prompt'].format(agent_infos=agent_infos)
     
     # 配置输出格式化
-    extracts += prompt_user_demand_create_project_output['extract']
-    prompt += prompt_user_demand_create_project_output['prompt']
+    if mode == 'c':
+        extracts += c_ud_pc['extract']
+        prompt += c_ud_pc['prompt']
+    else:
+        extracts += e_ud_pc['extract']
+        prompt += e_ud_pc['prompt']
     
     return extracts, prompt
 
-def prompt_fix_error(desc: str, agent: str, err_msg: str):
+def prompt_fix_error(desc: str, agent: str, err_msg: str, mode: str='c'):
     # 开始初始化prompt
-    extracts = prompt_error_fix_input['extract']
-    prompt = prompt_error_fix_input['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
-    
-    extracts += prompt_user_demand_create_project_output['extract']
-    prompt += prompt_user_demand_create_project_output['prompt']
+    if mode == 'c':
+        extracts = c_ef['extract']
+        prompt = c_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
+        
+        extracts += c_ud_pc['extract']
+        prompt += c_ud_pc['prompt']
+    else:
+        extracts = e_ef['extract']
+        prompt = e_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
+        
+        extracts += e_ud_pc['extract']
+        prompt += e_ud_pc['prompt']
     
     return extracts, prompt
