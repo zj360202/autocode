@@ -12,3 +12,5 @@ Args:
 Returns:
     d: result d
 """
+
+PATTERN_PARAMS = r'\$\{([^}]+)\}'

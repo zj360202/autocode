@@ -8,13 +8,13 @@
 import os
 from loguru import logger
 
-from utils.comm_utils import get_full_path
+from utils.comm_utils import get_full_path, find_params
 from utils.logger import set_logger
 from dispatcher.agents.agent import AgentFactory
 from dispatcher.prompt.prompt_factory import prompt_pc, prompt_fix_error
 from dispatcher.models.qwen_o import ModelQWenOffice
 from dispatcher.models.parse_data import parse_answer
-from dispatcher.global_params import global_params
+from dispatcher.global_params import global_params, plan_run_params
 
 
 class Plan:
@@ -47,7 +47,14 @@ class Plan:
         agent = AgentFactory.get_agent(agent_name)['func']
         if 'args' in agent_info:
             args = dict(agent_info['args'])
-            # args = dict(agent_info['args'])
+            for k, v in args.items():
+                # 如果在参数值中存在变量(形式${param}),则判定名称是否在plan_run_params中，如果存在，则用值替换
+                if '\$\{' in v:
+                    params = find_params(v)
+                    for p in params:
+                        if p in plan_run_params:
+                            v.replace('${'+p+'}', plan_run_params[p])
+                    args[k] = v
             logger.debug(f'args:{args}')
             result = agent(**agent_info['args'])
             if 'check' in plan_info and result.get('status_code') == 0:
@@ -72,6 +79,10 @@ class Plan:
                 # 执行成功
                 rst = result.get('data')
                 logger.info(f'执行结果: {rst}')
+                # 如果指定的output信息(存储的变量名称)，则将rst中的数据信息保存到plan_run_params中去
+                if 'output' in plan_info:
+                    output_name = plan_info['output']
+                    plan_run_params[output_name] = rst
                 return rst
             else:
                 err_msg = result.get('err_msg')

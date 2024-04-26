@@ -1,7 +1,8 @@
 import os
+import re
 import inspect
 
-from utils.constants import AGENT_TEMP_DOC
+from utils.constants import AGENT_TEMP_DOC, PATTERN_PARAMS
 
 
 def get_full_path(relation_path, project_path):
@@ -73,3 +74,15 @@ def agent_desc(agent_name, func):
     if len(match_arg) != len(arg_list):
         raise ValueError(f'agent: {agent_name} 的doc注释中未将所有的参数进行描述完全')
     return func_desc, func_args_desc
+
+def find_params(text):
+    """
+    可以从文本中找到${}中的内容
+    Args:
+        text (_type_): 包含变量的文本
+    Returns:
+        list: 变量名称列表
+    """
+    pattern = re.compile(PATTERN_PARAMS)
+
+    return pattern.findall(text)
