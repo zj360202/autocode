@@ -66,7 +66,7 @@ autocode pc -n test -p "d:/" --project_subject "生成一个测试项目test, �
 - 返回类型: 目前只支持简单数据类型，str|int|bool|float, 可以不返回
 - 必须放在src/dispatcher/agents下面
 - 必须在src/dispatcher/agents/\_\_init__.py中进行注册
-- 如果需要设计到项目路径或其他全局变量的，参数src/dispatcher/global_params.py被应用的信息
+- 如果需要涉及到项目路径或其他全局变量的，参数src/dispatcher/global_params.py被应用的信息
 
 > #### 📌更多内容
 
