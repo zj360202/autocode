@@ -1,6 +1,6 @@
 from loguru import logger
 
-from .prompt import prompt_agents, prompt_user_demand_create_project_input
+from .prompt import prompt_agents, prompt_user_demand_create_project_input, prompt_error_fix_input
 
 from dispatcher.prompt.c.pc_prompt import prompt_user_demand_create_project_output as c_ud_pc, prompt_error_fix_output as c_ef
 from dispatcher.prompt.e.pc_prompt import prompt_user_demand_create_project_output as e_ud_pc, prompt_error_fix_output as e_ef
@@ -49,16 +49,16 @@ def prompt_pc(project_subject: str, check_desc: str, strategy: str='c'):
 def prompt_fix_error(desc: str, agent: str, err_msg: str, strategy: str='c'):
     # 开始初始化prompt
     if strategy == 'c':
-        extracts = c_ef['extract']
-        prompt = c_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
+        extracts = prompt_error_fix_input['extract']
+        prompt = prompt_error_fix_input['prompt']
         
-        extracts += c_ud_pc['extract']
-        prompt += c_ud_pc['prompt']
+        extracts += c_ef['extract']
+        prompt += c_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
     else:
-        extracts = e_ef['extract']
-        prompt = e_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
+        extracts = prompt_error_fix_input['extract']
+        prompt = prompt_error_fix_input['prompt']
         
-        extracts += e_ud_pc['extract']
-        prompt += e_ud_pc['prompt']
+        extracts += e_ef['extract']
+        prompt += e_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
     
     return extracts, prompt

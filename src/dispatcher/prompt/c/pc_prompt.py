@@ -17,7 +17,8 @@ prompt_user_demand_create_project_output = {
 3. 对于可选参数，如果arg_value为None，则不用设定
 4. 返回的必须是列表，如果有多个任务，在列表中添加新的任务json
 5. 下面任务说明格式化是"任务+序号, 任务标题"，任务说明必须完整出现在回复中，不作变更
-6. 如果agent存在返回参数，且在后续流程中需要使用，可以在param_name启一个名字, 以便在后续agent中的arg_value，使用${param_name}的方式进行引用
+6. 如果agent存在返回参数，且在后续流程中需要使用，可以在agent的output中，定义一个变量名称，放到param_name上, 
+    以便在后续agent中的arg_value，使用${param_name}的方式进行引用
 
 任务1, 用户需求任务拆解:
 ```json
