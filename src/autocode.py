@@ -4,38 +4,20 @@ import os
 import argparse
 from dotenv import load_dotenv
 
-
+from dispatcher.config import config, get_config
 from dispatcher.dispatcher import create_project
 
 
 def parse_args(args=None, namespace=None):
     parser = argparse.ArgumentParser(description="自动编码系统")
-    project = parser.add_subparsers(help="project")
+    stage = parser.add_subparsers("stage", help="子场景")
+    
 
-    default_s = os.environ.get('STRATEGY', 'c')
-    default_m = os.environ.get('MODE', 'conti')
-    default_l = os.environ.get('LANGUAGE', 'python')
-    default_se = os.environ.get('SEARCH_ENGINE', 'bing')
-    default_llm = os.environ.get('LLM', 'qwen-o')
-    default_log = os.environ.get('LOG_PATH', './logs')
-    default_cache = os.environ.get('CACHE_PATH', './cache')
-
-    project_create = project.add_parser("project_create", aliases=['pc'], help="创建项目, 支持创建一般的项目继续创建")
+    project_create = stage.add_parser("pc", aliases=['project_create'], help="创建项目, 支持创建一般的项目继续创建")
     project_create.add_argument("-n", "--name", required=True, help="任务名称")
     project_create.add_argument("-p", "--path", required=True, help="项目存放路径")
-    project_create.add_argument("-s", "--strategy", type=str, default=default_s, help="项目创建策略 c(完成优先)|e(效果优先) 默认c")
-    project_create.add_argument("-m", "--mode", type=str, default=default_m, help="项目创建模式 conti(延续)|cover(重建)")
-    project_create.add_argument("-l", "--language", type=str, default=default_l, required=False,
-                                help="主要编码语言(默认python)")
-    project_create.add_argument("--model_name", type=str, default=default_llm, required=False, help="模型(默认qwen-o)")
-    project_create.add_argument("--search_engine", type=str, default=default_se, required=False,
-                                help="搜索引擎(默认bing)")
-    project_create.add_argument("--env_name", type=str, required=False,
-                                help="conda虚拟机环境")
-    project_create.add_argument("--log_path", type=str, default=default_log, required=False,
-                                help="日志路径, 默认./logs")
-    project_create.add_argument("--cache_path", type=str, default=default_cache, required=False,
-                                help="缓存路径, 默认./cache")
+    project_create.add_argument("-d", "--develop_mode", required=True, default="default",
+                                help="开发模型,在yaml中配置相关参数, default|dev|prod")
     project_create.add_argument("--project_subject", type=str, required=True,
                                 help="项目主题内容")
     project_create.add_argument("--check_desc", type=str, required=True,
@@ -54,6 +36,18 @@ def main():
     func = args.func
     args_dict = vars(args)
     del args_dict['func']
+    
+    develop_mode = args.develop_mode
+    yaml_name = os.environ.get(args.stage)
+    config(yaml_name, args.stage)
+    if args.sub == 'project_create':
+        args['strategy'] = get_config('strategy', args.stage, develop_mode)
+        args['mode'] = get_config('mode', args.stage, develop_mode)
+        args['model_name'] = get_config('model_name', args.stage, develop_mode)
+        args['language'] = get_config('language', args.stage, develop_mode)
+        args['search_engine'] = get_config('search_engine', args.stage, develop_mode)
+        args['log_path'] = get_config('log_path', args.stage, develop_mode)
+        args['env_name'] = get_config('env_name', args.stage, develop_mode)
 
     # 启动函数
     func(**args_dict)

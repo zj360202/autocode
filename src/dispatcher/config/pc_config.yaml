@@ -1,0 +1,17 @@
+default:
+  # 项目创建策略 c(完成优先)|e(效果优先) 默认c
+  strategy: c
+  #项目创建模式 conti(延续)|cover(重建)
+  mode: conti
+  #支持的模型，qwen-o(qwen官方网站), qwen-i(千问接口，暂不支持)
+  model_name: qwen-o
+  #主要编码语言(默认python)
+  language: python
+  # 搜索引擎(默认bing)
+  search_engine: bing
+  # 日志路径, 默认./logs
+  log_path: ./logs
+  # 缓存路径, 默认./cache
+  cache_path: ./cache
+  # conda虚拟机环境
+  env_name: auto
