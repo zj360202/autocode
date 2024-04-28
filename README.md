@@ -7,7 +7,6 @@
 自动编码系统。主要通过特定格式的描述，完成用户需求收集，自动完成**可实现完整功能系统**的自动编码系统。
 
 ## 🚀 快速开始
----
 
 > #### 🔧 前期准备
 - 注册或登录千问官网https://tongyi.aliyun.com/qianwen/, 在项目运作中，会自动打开千问，必须保证已经登录
@@ -21,7 +20,7 @@
 ```shell script
 autocode pc -n test -p "d:/" --project_subject "生成一个测试项目test, 只包含一个文件test.py, 包含一个打印hello word的方法" --check_desc "执行项目文件，输出hello world"
 ```
-- `pc`: create_project, 创建目录，子命令，后续参数都和这个子命令进行绑定
+- `pc`: 创建目录，子场景，对应的yaml配置文件可以看.env中有对应关系
 - `-n`: --name, 项目名称
 - `-p`: --project_dir, 项目目录
 - `--project_subject`: 项目需求描述
@@ -33,6 +32,7 @@ autocode pc -n test -p "d:/" --project_subject "生成一个测试项目test, �
 - [ ] 轻度重构代码和完成验证中无法自动流转的部分，存在如下部分细节问题
   - [x] 千问是手动打开的，优化到完全自动打开，如果已经打开会复用
   - [ ] 效果验证的地方，prompt没有要模型返回匹配shell执行的结果需要和预期结果进行对比，这个是跨agent参数传递的功能，在后续开发
+  - [x] 重构了参数体系，系统环境和敏感参数在.env中，子场景或开发阶段需要不同的参数，配置在yaml中 
 - [ ] 中型python项目的自动编码
   - [ ] 多个python, python文件直接相互调用
   - [ ] 跨agent参数传递
@@ -71,7 +71,6 @@ autocode pc -n test -p "d:/" --project_subject "生成一个测试项目test, �
 - [ ] 等第一个项目效果完成，后续开启更新迭代计划
 
 ## 💟 特别鸣谢
----
 
 此项目参考诸多优质开源项目，特此感谢开源项目作者的贡献；以下列出部分参考项目：
 

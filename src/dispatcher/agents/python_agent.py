@@ -122,7 +122,8 @@ def create_dir(dir_path: str):
     logger.info(f'路径: {basename}')
     if not os.path.exists(basename):
         os.makedirs(basename, exist_ok=True)
-    if not os.path.exists(dir_path):
+    if len(basename) < len(dir_path) -1 and not os.path.exists(dir_path):
+        # 路径中包含文件名
         open(dir_path, 'w').close()
 
 

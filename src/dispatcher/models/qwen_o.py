@@ -2,7 +2,7 @@ import os
 import time
 import copy
 from DrissionPage import ChromiumPage
-from DrissionPage.errors import ElementLostError
+from DrissionPage.errors import ElementLostError, ElementNotFoundError
 from loguru import logger
 import pyperclip
 
@@ -33,15 +33,15 @@ class ModelQWenOffice:
         
         
     def model(self, question):
-        chat_input = os.environ.get('QWEN_CHAT_INPUT_TAG' ,'textarea@@class:ant-input')
-        textarea_ele = self.new_page.ele(f'tag:{chat_input}')
-        textarea_ele.input(question)
-        try:
-            chat_submit = os.environ.get('QWEN_CHAT_SUBMIT_CSS' ,'div.chatBtn--RFpkrgo_ > span.anticon')
-            self.new_page.ele(f'css:{chat_submit}').click()
-        except ElementLostError:
-            logger.warning('模型发送按钮无效, 请替换自己的会话session在开始')
-        time.sleep(10)
+        # chat_input = os.environ.get('QWEN_CHAT_INPUT_TAG' ,'textarea@@class:ant-input')
+        # textarea_ele = self.new_page.ele(f'tag:{chat_input}')
+        # textarea_ele.input(question)
+        # try:
+        #     chat_submit = os.environ.get('QWEN_CHAT_SUBMIT_CSS' ,'div.chatBtn--RFpkrgo_ > span.anticon')
+        #     self.new_page.ele(f'css:{chat_submit}').click()
+        # except (ElementLostError, ElementNotFoundError):
+        #     logger.warning('模型发送按钮无效, 请替换自己的会话session在开始')
+        # time.sleep(10)
         
         answer_css = os.environ.get('QWEN_CHAT_ANSWER_CSS' ,'div.answerItem--U4_Uv3iw')
         answers = self.new_page.eles(f'css:{answer_css}')

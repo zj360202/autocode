@@ -1,3 +1,5 @@
+from loguru import logger
+
 from .prompt import prompt_agents, prompt_user_demand_create_project_input
 
 from dispatcher.prompt.c.pc_prompt import prompt_user_demand_create_project_output as c_ud_pc, prompt_error_fix_output as c_ef
@@ -16,7 +18,7 @@ def _load_agent():
         for k, v in agent_func_mapping.items():
             agent_infos += f'{v["desc"]}'
 
-def prompt_pc(project_subject: str, check_desc: str, mode: str='c'):
+def prompt_pc(project_subject: str, check_desc: str, strategy: str='c'):
     # 初始化agent信息
     _load_agent()
     
@@ -33,8 +35,9 @@ def prompt_pc(project_subject: str, check_desc: str, mode: str='c'):
     extracts += prompt_agents['extract']
     prompt += prompt_agents['prompt'].format(agent_infos=agent_infos)
     
+    logger.debug(f'strategy:{strategy}')
     # 配置输出格式化
-    if mode == 'c':
+    if strategy == 'c':
         extracts += c_ud_pc['extract']
         prompt += c_ud_pc['prompt']
     else:
@@ -43,9 +46,9 @@ def prompt_pc(project_subject: str, check_desc: str, mode: str='c'):
     
     return extracts, prompt
 
-def prompt_fix_error(desc: str, agent: str, err_msg: str, mode: str='c'):
+def prompt_fix_error(desc: str, agent: str, err_msg: str, strategy: str='c'):
     # 开始初始化prompt
-    if mode == 'c':
+    if strategy == 'c':
         extracts = c_ef['extract']
         prompt = c_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
         

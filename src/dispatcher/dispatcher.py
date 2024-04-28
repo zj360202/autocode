@@ -22,15 +22,15 @@ class Plan:
     执行计划
     """
     def __init__(self, object_path: str, language: str, model, 
-                 search_engine: str, env_name: str, cache_dir: str,
-                 mode: str = 'c'):
+                 search_engine: str, env_name: str, cache_path: str,
+                 strategy: str = 'c'):
         self.object_path = object_path
         self.language = language
         self.model = model
         self.search_engine = search_engine
         self.env_name = env_name
-        self.cache_dir = cache_dir
-        self.mode = mode
+        self.cache_path = cache_path
+        self.strategy = strategy
 
         # 执行步骤中的参数
         self.max_loop = 10  # 如果执行失败，最大重试次数
@@ -90,7 +90,7 @@ class Plan:
                     'desc': plan_info['desc'],
                     'agent': plan_info['agent'],
                     'err_msg': err_msg,
-                    'mode': self.mode
+                    'strategy': self.strategy
                 }
                 extracts, prompt = prompt_fix_error(**new_plan)
                 logger.info(f'执行失败，重新构建Prompt: {prompt}')
@@ -108,6 +108,8 @@ class Plan:
 def create_project(name: str,
                    path: str,
                    mode: str,
+                   strategy: str,
+                   scene: str,
                    language: str,
                    model_name: str,
                    search_engine: str,
@@ -118,6 +120,24 @@ def create_project(name: str,
                    check_desc: str):
     """
     创建项目
+    Args:
+        name (str): 项目名称
+        path (str): 项目存放路径
+        strategy (str): 项目创建策略 c(完成优先)|e(效果优先) 默认c
+        mode (str): 项目创建模式 conti(延续)|cover(重建)
+        scene (str): 场景名称，create_project默认是pc
+        language (str): 项目的主要编程语言
+        model_name (str): 项目编码过程中使用的模型名称
+        search_engine (str): 搜索引擎
+        env_name (str): conda的env环境名称
+        log_path (str): log日志存放的路径
+        cache_path (str): cache文件存放的地址
+        project_subject (str): 项目描述
+        check_desc (str): 验证项目描述
+
+    Raises:
+        PermissionError: _description_
+        Exception: _description_
     """
     if not os.path.exists(path):
         try:
@@ -134,14 +154,14 @@ def create_project(name: str,
     logger.info(f'项目路径:{path}')
 
     # 格式化日志路径
-    log_path = get_full_path(log_path, path)
+    log_path = get_full_path(path, log_path)
     os.makedirs(log_path, exist_ok=True)
     
     # 配置日志
     set_logger(log_path)
 
     # 格式化缓存路径
-    cache_path = get_full_path(cache_path, path)
+    cache_path = get_full_path(path, cache_path)
     os.makedirs(cache_path, exist_ok=True)
 
     model = None
@@ -151,7 +171,7 @@ def create_project(name: str,
     ##################################################
     logger.info('开始项目')
     # 开始执行
-    extracts, prompt = prompt_pc(project_subject, check_desc=check_desc, mode=mode)
+    extracts, prompt = prompt_pc(project_subject, check_desc=check_desc, strategy=strategy)
     # print(f'prompt:\n{first_prompt}')
     
     # 访问大模型，获取返回的结果
@@ -165,8 +185,8 @@ def create_project(name: str,
     cache_plans = []
     
     # 开始完成执行计划
-    plan = Plan(object_path=path, language=language, model=model_name, 
-                 search_engine=search_engine, env_name=env_name, mode=mode)
+    plan = Plan(object_path=path, language=language, model=model_name, cache_path=cache_path,
+                 search_engine=search_engine, env_name=env_name, strategy=strategy)
     for k, v in key_infos.items():
         # 两个key, 一个是用需求，一个是效果验证
         logger.info(f'开始完成任务: {k}')
