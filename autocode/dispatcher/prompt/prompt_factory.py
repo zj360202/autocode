@@ -1,6 +1,7 @@
 from loguru import logger
 
-from .prompt import prompt_agents, prompt_user_demand_create_project_input, prompt_error_fix_input
+from .prompt import prompt_demand_to_plan, prompt_agents
+from .prompt import prompt_user_demand_create_project_input, prompt_error_fix_input
 
 from dispatcher.prompt.c.pc_prompt import prompt_user_demand_create_project_output as c_ud_pc, prompt_error_fix_output as c_ef
 from dispatcher.prompt.e.pc_prompt import prompt_user_demand_create_project_output as e_ud_pc, prompt_error_fix_output as e_ef
@@ -17,6 +18,21 @@ def _load_agent():
         agent_func_mapping = AgentFactory.agent_mapping()
         for k, v in agent_func_mapping.items():
             agent_infos += f'{v["desc"]}'
+            
+def prompt_demand_format(user_demand: str, search_info: str):
+    """
+    通过搜索完善用户需求，并将用户需求拆解完成计划
+    """
+    # 开始初始化prompt
+    extracts = []
+    prompt = ""
+    
+    # 配置用户需求信息
+    extracts += prompt_demand_to_plan['extract']
+    prompt = prompt_demand_to_plan['prompt'].format(demand=user_demand, search_info=search_info)
+    
+    return extracts, prompt
+    
 
 def prompt_pc(project_subject: str, check_desc: str, strategy: str='c'):
     # 初始化agent信息

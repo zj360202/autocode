@@ -11,10 +11,11 @@ from loguru import logger
 from utils.comm_utils import get_full_path, find_params
 from utils.logger import set_logger
 from dispatcher.agents.agent import AgentFactory
-from dispatcher.prompt.prompt_factory import prompt_pc, prompt_fix_error
+from dispatcher.prompt.prompt_factory import prompt_pc, prompt_fix_error, prompt_demand_format
 from dispatcher.models.qwen_o import ModelQWenOffice
 from dispatcher.models.parse_data import parse_answer
 from dispatcher.global_params import global_params, plan_run_params
+from dispatcher.agents.web_search import bing_search
 
 
 class Plan:
@@ -165,13 +166,33 @@ def create_project(name: str,
     os.makedirs(cache_path, exist_ok=True)
 
     model = None
+    token_length = 1024
     if model_name == 'qwen-o':
         model = ModelQWenOffice()
+        token_length = os.environ.get('QWEN_TOKEN_LENGTH')
 
     ##################################################
     logger.info('开始项目')
     # 开始执行
-    extracts, prompt = prompt_pc(project_subject, check_desc=check_desc, strategy=strategy)
+    # 通过用户描述，进行搜索，获取前8个搜索结果，合并用户需求，让模型给出文本的执行计划
+    subscription_key = os.environ.get('BING_SUBSCRIPTION_KEY')
+    search_results = bing_search(project_subject, subscription_key)
+    search_info = ""
+    has_length = 0
+    for sr in search_results:
+        sr_len = len(sr)
+        if has_length + sr_len <= token_length:
+            search_info += f'{sr}\n'
+    
+    extracts, prompt = prompt_demand_format(project_subject, search_info=search_info)
+    
+    answer = model.model(prompt)
+    demand_plan = parse_answer(answer, titles=extracts)
+    
+    new_demand = project_subject + '\n' + demand_plan
+    
+    # 将执行计划，填充到prompt模板中，完成调用agent的执行计划
+    extracts, prompt = prompt_pc(new_demand, check_desc=check_desc, strategy=strategy)
     # print(f'prompt:\n{first_prompt}')
     
     # 访问大模型，获取返回的结果

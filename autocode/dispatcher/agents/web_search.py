@@ -1,3 +1,7 @@
+"""
+很多的用户需求都比较简单，需要通过搜索，获取更多详细的内容，然后丰富prompt，让模型通过搜索的内容进行整合完成更加准确的步骤
+"""
+
 import requests
 from loguru import logger
 
@@ -11,7 +15,7 @@ GOOGLE_SEARCH_ENDPOINT = "https://customsearch.googleapis.com/customsearch/v1"
 
 # Specify the number of references from the search engine you want to use.
 # 8 is usually a good number.
-REFERENCE_COUNT = 1
+REFERENCE_COUNT = 8
 
 # Specify the default timeout for the search engine. If the search engine
 # does not respond within this time, we will return an error.
