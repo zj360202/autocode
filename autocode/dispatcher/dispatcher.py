@@ -87,8 +87,8 @@ class Plan:
             else:
                 err_msg = result.get('err_msg')
                 new_plan = {
-                    'desc': plan_info['desc'],
-                    'agent': plan_info['agent'],
+                    'demand_desc': plan_info['desc'],
+                    'agent_info': plan_info['agent'],
                     'err_msg': err_msg,
                     'strategy': self.strategy
                 }

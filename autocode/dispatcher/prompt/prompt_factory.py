@@ -46,19 +46,15 @@ def prompt_pc(project_subject: str, check_desc: str, strategy: str='c'):
     
     return extracts, prompt
 
-def prompt_fix_error(desc: str, agent: str, err_msg: str, strategy: str='c'):
+def prompt_fix_error(demand_desc: str, agent_info: str, err_msg: str, strategy: str='c'):
     # 开始初始化prompt
+    extracts = prompt_error_fix_input['extract']
+    prompt = prompt_error_fix_input['prompt'].format(demand_desc=demand_desc, agent_info=agent_info, err_msg=err_msg)
     if strategy == 'c':
-        extracts = prompt_error_fix_input['extract']
-        prompt = prompt_error_fix_input['prompt']
-        
         extracts += c_ef['extract']
-        prompt += c_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
+        prompt += c_ef['prompt']
     else:
-        extracts = prompt_error_fix_input['extract']
-        prompt = prompt_error_fix_input['prompt']
-        
         extracts += e_ef['extract']
-        prompt += e_ef['prompt'].format(desc=desc, agent=agent, err_msg=err_msg)
+        prompt += e_ef['prompt']
     
     return extracts, prompt

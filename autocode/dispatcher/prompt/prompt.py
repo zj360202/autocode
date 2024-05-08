@@ -38,13 +38,18 @@ prompt_user_demand_create_project_input = {
 """
 }
 
-# 需求分析
-prompt_demand_analyse_input = {
+# 爬虫项目分析, 直接获取页面数据
+prompt_crawling_analyse = {
     'extract': [],
     'prompt':"""
-使用python, 完成需求: {demand}
+用Dri
+1. 打开浏览器
+2. 访问url:{url}
+3. 
 """
 }
+
+# 爬虫项目分析, 通过db数据生成url进行访问，然后进行爬取
 
 ###################################################################################
 # python代码生成
@@ -83,10 +88,10 @@ prompt_error_fix_input = {
     'extract': [],
     'prompt':"""
 需求描述: 
-{desc}
+{demand_desc}
 
 执行内容, agent信息:
-{agent}
+{agent_info}
 
 执行错误如下:
 ```shell
